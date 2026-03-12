@@ -55,14 +55,19 @@ add_filter( 'woocommerce_get_settings_advanced', function( $settings, $current_s
 }, 10, 2 );
 
 /**
- * Strip sensitive fields from product API responses for unauthenticated requests.
+ * Strip sensitive fields from a product or variation API response for unauthenticated requests.
+ *
+ * @param WP_REST_Response $response The response object.
+ * @param WC_Data          $object   Product or variation object.
+ * @param WP_REST_Request  $request  The request object.
+ * @return WP_REST_Response
  */
-add_filter( 'woocommerce_rest_prepare_product_object', function( $response, $product, $request ) {
+function neochrome_filter_sensitive_product_data( $response, $object, $request ) {
 	if ( 'yes' !== get_option( 'neochrome_api_restrict_products', 'yes' ) ) {
 		return $response;
 	}
 
-	// If the request is authenticated via WooCommerce API keys, return full response.
+	// If the request is authenticated, return full response.
 	if ( neochrome_is_authenticated_api_request() ) {
 		return $response;
 	}
@@ -71,7 +76,9 @@ add_filter( 'woocommerce_rest_prepare_product_object', function( $response, $pro
 
 	// Remove sensitive inventory and sales fields.
 	$data['stock_quantity'] = null;
-	$data['total_sales']    = null;
+	if ( array_key_exists( 'total_sales', $data ) ) {
+		$data['total_sales'] = null;
+	}
 
 	// Remove cost-of-goods entries from meta_data.
 	$sensitive_meta_keys = array(
@@ -99,7 +106,10 @@ add_filter( 'woocommerce_rest_prepare_product_object', function( $response, $pro
 	$response->set_data( $data );
 
 	return $response;
-}, 10, 3 );
+}
+
+add_filter( 'woocommerce_rest_prepare_product_object', 'neochrome_filter_sensitive_product_data', 10, 3 );
+add_filter( 'woocommerce_rest_prepare_product_variation_object', 'neochrome_filter_sensitive_product_data', 10, 3 );
 
 /**
  * Block the /wp/v2/users endpoint for unauthenticated requests.
