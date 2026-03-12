@@ -111,7 +111,7 @@ add_filter( 'rest_pre_dispatch', function( $result, $server, $request ) {
 
 	$route = $request->get_route();
 
-	if ( preg_match( '#^/wp/v2/users#', $route ) && ! is_user_logged_in() ) {
+	if ( preg_match( '#^/wp/v2/users(/|$)#', $route ) && ! is_user_logged_in() ) {
 		return new WP_Error(
 			'rest_cannot_view',
 			__( 'Access to this endpoint is restricted.', 'neochrome-api-restrictions' ),
