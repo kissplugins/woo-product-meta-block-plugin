@@ -123,26 +123,15 @@ add_filter( 'rest_pre_dispatch', function( $result, $server, $request ) {
 }, 10, 3 );
 
 /**
- * Check whether the current REST API request is authenticated via WooCommerce API keys.
+ * Check whether the current REST API request is authenticated.
+ *
+ * By the time WooCommerce REST response filters fire, valid API keys have
+ * already been verified and the current user has been set. Checking
+ * is_user_logged_in() is sufficient and avoids treating the mere presence
+ * of unvalidated credentials (e.g. a bogus consumer_key) as authenticated.
  *
  * @return bool
  */
 function neochrome_is_authenticated_api_request() {
-	// WooCommerce sets the current user when authenticating via API keys.
-	// An unauthenticated WC REST request has no user context.
-	if ( is_user_logged_in() ) {
-		return true;
-	}
-
-	// Check for API key parameters in the request (query string auth).
-	if ( ! empty( $_GET['consumer_key'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-		return true;
-	}
-
-	// Check for OAuth or Basic Auth headers.
-	if ( ! empty( $_SERVER['HTTP_AUTHORIZATION'] ) || ! empty( $_SERVER['PHP_AUTH_USER'] ) ) {
-		return true;
-	}
-
-	return false;
+	return is_user_logged_in();
 }
