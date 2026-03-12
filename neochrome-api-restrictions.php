@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Neochrome API Access Restrictions
  * Description: Strips sensitive product data (stock quantities, sales counts, cost-of-goods) from unauthenticated WooCommerce REST API responses. Authenticated API key holders see the full response.
- * Version: 1.0.0
+ * Version: 1.0.2
  * Author: Neochrome
  * Requires Plugins: woocommerce
  * Text Domain: neochrome-api-restrictions
