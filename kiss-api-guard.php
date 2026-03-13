@@ -1,25 +1,34 @@
 <?php
 /**
- * Plugin Name: Neochrome API Access Restrictions
+ * Plugin Name: KISS API Guard Plugin
  * Description: Strips sensitive product data (stock quantities, sales counts, cost-of-goods) from unauthenticated WooCommerce REST API responses. Authenticated API key holders see the full response.
  * Version: 1.0.2
- * Author: Neochrome
+ * Author: KISS Plugins | Hypercart
  * Requires Plugins: woocommerce
- * Text Domain: neochrome-api-restrictions
+ * Text Domain: kiss-api-guard
+ * License: GPL v2
+ * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Register the "API Restrictions" section under WooCommerce > Settings > Advanced.
+ *
+ * @param array<string, string> $sections Existing advanced settings sections.
+ * @return array<string, string>
  */
 add_filter( 'woocommerce_get_sections_advanced', function( $sections ) {
-	$sections['api_restrictions'] = __( 'API Restrictions', 'neochrome-api-restrictions' );
+	$sections['api_restrictions'] = __( 'API Restrictions', 'kiss-api-guard' );
 	return $sections;
 } );
 
 /**
  * Add settings fields for the API Restrictions section.
+ *
+ * @param array<int, array<string, mixed>> $settings        Existing advanced settings.
+ * @param string                           $current_section Current WooCommerce settings section.
+ * @return array<int, array<string, mixed>>
  */
 add_filter( 'woocommerce_get_settings_advanced', function( $settings, $current_section ) {
 	if ( 'api_restrictions' !== $current_section ) {
@@ -28,28 +37,28 @@ add_filter( 'woocommerce_get_settings_advanced', function( $settings, $current_s
 
 	return array(
 		array(
-			'title' => __( 'API Restrictions', 'neochrome-api-restrictions' ),
+			'title' => __( 'API Restrictions', 'kiss-api-guard' ),
 			'type'  => 'title',
-			'desc'  => __( 'Control what data is visible to unauthenticated REST API requests. Authenticated API key holders are not affected by these settings.', 'neochrome-api-restrictions' ),
-			'id'    => 'neochrome_api_restrictions_options',
+			'desc'  => __( 'Control what data is visible to unauthenticated REST API requests. Authenticated API key holders are not affected by these settings.', 'kiss-api-guard' ),
+			'id'    => 'kiss_api_guard_options',
 		),
 		array(
-			'title'    => __( 'Filter unauthenticated product responses', 'neochrome-api-restrictions' ),
-			'desc'     => __( 'Remove stock quantities, total sales, and cost-of-goods from product responses when the request has no API key. Disable this if you need the public products endpoint to return the full product object.', 'neochrome-api-restrictions' ),
-			'id'       => 'neochrome_api_restrict_products',
+			'title'    => __( 'Filter unauthenticated product responses', 'kiss-api-guard' ),
+			'desc'     => __( 'Remove stock quantities, total sales, and cost-of-goods from product responses when the request has no API key. Disable this if you need the public products endpoint to return the full product object.', 'kiss-api-guard' ),
+			'id'       => 'kiss_api_guard_restrict_products',
 			'default'  => 'yes',
 			'type'     => 'checkbox',
 		),
 		array(
-			'title'    => __( 'Disable users endpoint', 'neochrome-api-restrictions' ),
-			'desc'     => __( 'Block the /wp/v2/users endpoint for unauthenticated requests. This endpoint exposes admin usernames and can aid brute-force attacks.', 'neochrome-api-restrictions' ),
-			'id'       => 'neochrome_api_restrict_users',
+			'title'    => __( 'Disable users endpoint', 'kiss-api-guard' ),
+			'desc'     => __( 'Block the /wp/v2/users endpoint for unauthenticated requests. This endpoint exposes admin usernames and can aid brute-force attacks.', 'kiss-api-guard' ),
+			'id'       => 'kiss_api_guard_restrict_users',
 			'default'  => 'yes',
 			'type'     => 'checkbox',
 		),
 		array(
 			'type' => 'sectionend',
-			'id'   => 'neochrome_api_restrictions_options',
+			'id'   => 'kiss_api_guard_options',
 		),
 	);
 }, 10, 2 );
@@ -62,13 +71,13 @@ add_filter( 'woocommerce_get_settings_advanced', function( $settings, $current_s
  * @param WP_REST_Request  $request  The request object.
  * @return WP_REST_Response
  */
-function neochrome_filter_sensitive_product_data( $response, $object, $request ) {
-	if ( 'yes' !== get_option( 'neochrome_api_restrict_products', 'yes' ) ) {
+function kiss_api_guard_filter_sensitive_product_data( $response, $object, $request ) {
+	if ( 'yes' !== get_option( 'kiss_api_guard_restrict_products', 'yes' ) ) {
 		return $response;
 	}
 
 	// If the request is authenticated, return full response.
-	if ( neochrome_is_authenticated_api_request() ) {
+	if ( kiss_api_guard_is_authenticated_request() ) {
 		return $response;
 	}
 
@@ -91,7 +100,7 @@ function neochrome_filter_sensitive_product_data( $response, $object, $request )
 	 *
 	 * @param array $sensitive_meta_keys Meta key names to remove.
 	 */
-	$sensitive_meta_keys = apply_filters( 'neochrome_api_sensitive_meta_keys', $sensitive_meta_keys );
+	$sensitive_meta_keys = apply_filters( 'kiss_api_guard_sensitive_meta_keys', $sensitive_meta_keys );
 
 	if ( ! empty( $data['meta_data'] ) && is_array( $data['meta_data'] ) ) {
 		$data['meta_data'] = array_values( array_filter(
@@ -108,23 +117,28 @@ function neochrome_filter_sensitive_product_data( $response, $object, $request )
 	return $response;
 }
 
-add_filter( 'woocommerce_rest_prepare_product_object', 'neochrome_filter_sensitive_product_data', 10, 3 );
-add_filter( 'woocommerce_rest_prepare_product_variation_object', 'neochrome_filter_sensitive_product_data', 10, 3 );
+add_filter( 'woocommerce_rest_prepare_product_object', 'kiss_api_guard_filter_sensitive_product_data', 10, 3 );
+add_filter( 'woocommerce_rest_prepare_product_variation_object', 'kiss_api_guard_filter_sensitive_product_data', 10, 3 );
 
 /**
  * Block the /wp/v2/users endpoint for unauthenticated requests.
+ *
+ * @param mixed            $result  Response to replace the requested version with, or null to continue dispatching.
+ * @param WP_REST_Server   $server  Server instance.
+ * @param WP_REST_Request  $request Request used to generate the response.
+ * @return mixed
  */
 add_filter( 'rest_pre_dispatch', function( $result, $server, $request ) {
-	if ( 'yes' !== get_option( 'neochrome_api_restrict_users', 'yes' ) ) {
+	if ( 'yes' !== get_option( 'kiss_api_guard_restrict_users', 'yes' ) ) {
 		return $result;
 	}
 
 	$route = $request->get_route();
 
-	if ( preg_match( '#^/wp/v2/users(/|$)#', $route ) && ! is_user_logged_in() ) {
+	if ( preg_match( '#^/wp/v2/users(/|$)#', $route ) && ! kiss_api_guard_is_authenticated_request() ) {
 		return new WP_Error(
 			'rest_cannot_view',
-			__( 'Access to this endpoint is restricted.', 'neochrome-api-restrictions' ),
+			__( 'Access to this endpoint is restricted.', 'kiss-api-guard' ),
 			array( 'status' => 401 )
 		);
 	}
@@ -142,6 +156,6 @@ add_filter( 'rest_pre_dispatch', function( $result, $server, $request ) {
  *
  * @return bool
  */
-function neochrome_is_authenticated_api_request() {
+function kiss_api_guard_is_authenticated_request() {
 	return is_user_logged_in();
 }
