@@ -1,6 +1,8 @@
-# WooCommerce Product Meta Block
+# KISS Plugins WooCommerce Product Meta Block
 
 A Gutenberg block to display product metadata for WooCommerce products.
+
+https://github.com/kissplugins/woo-product-meta-block-plugin
 
 ## Author
 
