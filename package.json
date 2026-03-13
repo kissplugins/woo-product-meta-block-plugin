@@ -1,6 +1,6 @@
 {
 	"name": "woo-block-product-meta",
-	"version": "1.0.0",
+	"private": true,
 	"description": "A Gutenberg block to display product metadata for WooCommerce products.",
 	"author": "Hypercart",
 	"license": "GPL-2.0-or-later",
