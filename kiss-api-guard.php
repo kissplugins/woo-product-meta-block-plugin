@@ -3,9 +3,11 @@
  * Plugin Name: KISS API Guard Plugin
  * Description: Strips sensitive product data (stock quantities, sales counts, cost-of-goods) from unauthenticated WooCommerce REST API responses. Authenticated API key holders see the full response.
  * Version: 1.0.2
- * Author: Neochrome
+ * Author: KISS Plugins | Hypercart
  * Requires Plugins: woocommerce
  * Text Domain: kiss-api-guard
+ * License: GPL v2
+ * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
 defined( 'ABSPATH' ) || exit;
