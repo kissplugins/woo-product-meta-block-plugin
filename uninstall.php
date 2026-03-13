@@ -1,12 +1,10 @@
 <?php
 /**
- * Uninstall handler for Neochrome API Access Restrictions.
+ * Uninstall handler for WooCommerce Product Meta Block.
  *
- * Removes plugin options from the database when the plugin is deleted
- * via the WordPress admin.
+ * Runs when the plugin is deleted via the WordPress admin.
+ * This plugin does not store any options in the database,
+ * so no cleanup is required.
  */
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
-
-delete_option( 'neochrome_api_restrict_products' );
-delete_option( 'neochrome_api_restrict_users' );

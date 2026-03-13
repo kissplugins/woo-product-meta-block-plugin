@@ -1,0 +1,35 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "woo-block-product-meta/product-meta-block",
+	"title": "Product Meta",
+	"category": "woocommerce",
+	"icon": "tag",
+	"description": "Displays a product metadata field by key.",
+	"keywords": [ "product", "meta", "woocommerce", "custom field" ],
+	"supports": {
+		"html": false,
+		"color": {
+			"text": true,
+			"background": true
+		},
+		"typography": {
+			"fontSize": true
+		}
+	},
+	"usesContext": [ "postId", "postType" ],
+	"attributes": {
+		"metaKey": {
+			"type": "string",
+			"default": ""
+		},
+		"label": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"textdomain": "woo-block-product-meta",
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css",
+	"editorStyle": "file:./index.css"
+}
