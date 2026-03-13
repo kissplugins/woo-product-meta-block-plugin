@@ -12,6 +12,9 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Register the "API Restrictions" section under WooCommerce > Settings > Advanced.
+ *
+ * @param array<string, string> $sections Existing advanced settings sections.
+ * @return array<string, string>
  */
 add_filter( 'woocommerce_get_sections_advanced', function( $sections ) {
 	$sections['api_restrictions'] = __( 'API Restrictions', 'kiss-api-guard' );
@@ -20,6 +23,10 @@ add_filter( 'woocommerce_get_sections_advanced', function( $sections ) {
 
 /**
  * Add settings fields for the API Restrictions section.
+ *
+ * @param array<int, array<string, mixed>> $settings        Existing advanced settings.
+ * @param string                           $current_section Current WooCommerce settings section.
+ * @return array<int, array<string, mixed>>
  */
 add_filter( 'woocommerce_get_settings_advanced', function( $settings, $current_section ) {
 	if ( 'api_restrictions' !== $current_section ) {
@@ -113,6 +120,11 @@ add_filter( 'woocommerce_rest_prepare_product_variation_object', 'kiss_api_guard
 
 /**
  * Block the /wp/v2/users endpoint for unauthenticated requests.
+ *
+ * @param mixed            $result  Response to replace the requested version with, or null to continue dispatching.
+ * @param WP_REST_Server   $server  Server instance.
+ * @param WP_REST_Request  $request Request used to generate the response.
+ * @return mixed
  */
 add_filter( 'rest_pre_dispatch', function( $result, $server, $request ) {
 	if ( 'yes' !== get_option( 'kiss_api_guard_restrict_users', 'yes' ) ) {
